@@ -56,18 +56,15 @@ const FormInput = props => {
     );
 };
 
-const CreateItem = () => {
+const CreateModel = () => {
     const [loading, setLoading] = useState(false);
     const [submitStatus, setSubmitStatus] = useState({ status: null, message: '' });
 
     const [form, setForm] = useState({
-        model: DROPDOWN_DEFAULT,
-        category: DROPDOWN_DEFAULT,
-        page_number: NUMBER_INPUT_REQUIRED,
-        item_number: TEXT_INPUT_REQUIRED,
-        foreign_id: TEXT_INPUT_REQUIRED,
-        item_name: TEXT_INPUT_REQUIRED,
-        price: NUMBER_INPUT_REQUIRED,
+        name: TEXT_INPUT_REQUIRED,
+        country: TEXT_INPUT_REQUIRED,
+        primary_name: TEXT_INPUT_REQUIRED,
+        secondary_name: TEXT_INPUT_REQUIRED,
     });
 
     const handleOnChange = e => {
@@ -80,8 +77,8 @@ const CreateItem = () => {
     };
 
     useEffect(() => {
-        loadDropdownGeneric('model', 'model', setForm);
-        loadDropdownGeneric('item_category', 'category', setForm);
+        // loadDropdownGeneric('model', 'model', setForm);
+        // loadDropdownGeneric('item_category', 'category', setForm);
     }, []);
 
     const handleFormSubmit = e => {
@@ -91,17 +88,12 @@ const CreateItem = () => {
         e.preventDefault();
         apiAuth
             .post(
-                '/item/create',
+                '/model/create',
                 qs.stringify({
-                    user_id: getLoggedInUser().id,
-                    item_id: `${form.model.value}${form.category.value}${form.page_number.value}${form.item_number.value}`,
-                    model_id: form.model.value,
-                    item_category_id: form.category.value,
-                    page_no: form.page_number.value,
-                    item_no: form.item_number.value,
-                    foreign_id: form.foreign_id.value,
-                    item_name: form.item_name.value,
-                    price: form.price.value,
+                    name: form.name.value,
+                    country: form.country.value,
+                    primary_name: form.primary_name.value,
+                    secondary_name: form.secondary_name.value,
                 })
             )
             .then(response => {
@@ -128,7 +120,7 @@ const CreateItem = () => {
                     <Spinner className="m-2" type="grow" color="success" />
                 ) : (
                         <Button color="success" type="submit">
-                            Create Item
+                            Create Model
                         </Button>
                     )}
             </>
@@ -138,73 +130,44 @@ const CreateItem = () => {
     return (
         <Card>
             <CardBody>
-                <h4 className="header-title mt-0">Create Item</h4>
+                <h4 className="header-title mt-0">Create Model</h4>
 
                 <Row>
                     <Col lg={12}>
                         <Form onSubmit={handleFormSubmit}>
-                            <Badge color="success" className="mr-1">
-                                Item Code
-                            </Badge>
-                            <Label>{form.model.value}{form.category.value}{form.page_number.value}{form.item_number.value}</Label>
+                            <Label for="text">Name</Label>
                             <FormGroup>
-                                <Label for="text">Model</Label>
                                 <FormInput
-                                    {...form['model']}
-                                    name="model"
+                                    {...form['name']}
+                                    name="name"
+                                    placeholder="Name"
                                     handleOnChange={handleOnChange}
                                 />
                             </FormGroup>
                             <FormGroup>
-                                <Label for="text">Category</Label>
+                                <Label for="text">Country</Label>
                                 <FormInput
-                                    {...form['category']}
-                                    name="category"
+                                    {...form['country']}
+                                    name="country"
+                                    placeholder="Country"
                                     handleOnChange={handleOnChange}
                                 />
                             </FormGroup>
                             <FormGroup>
-                                <Label for="text">Page Number</Label>
+                                <Label for="text">Primary Name</Label>
                                 <FormInput
-                                    {...form['page_number']}
-                                    name="page_number"
-                                    placeholder="009"
+                                    {...form['primary_name']}
+                                    name="primary_name"
+                                    placeholder="Primary Name"
                                     handleOnChange={handleOnChange}
                                 />
                             </FormGroup>
                             <FormGroup>
-                                <Label for="text">Item Number</Label>
+                                <Label for="text">Secondary Name</Label>
                                 <FormInput
-                                    {...form['item_number']}
-                                    name="item_number"
-                                    placeholder="ZF.1AB"
-                                    handleOnChange={handleOnChange}
-                                />
-                            </FormGroup>
-                            <FormGroup>
-                                <Label for="text">Foreign ID</Label>
-                                <FormInput
-                                    {...form['foreign_id']}
-                                    name="foreign_id"
-                                    placeholder="1W.AFZFD"
-                                    handleOnChange={handleOnChange}
-                                />
-                            </FormGroup>
-                            <FormGroup>
-                                <Label for="text">Item Name</Label>
-                                <FormInput
-                                    {...form['item_name']}
-                                    name="item_name"
-                                    placeholder="Piston"
-                                    handleOnChange={handleOnChange}
-                                />
-                            </FormGroup>
-                            <FormGroup>
-                                <Label for="text">Price</Label>
-                                <FormInput
-                                    {...form['price']}
-                                    name="price"
-                                    placeholder="290000"
+                                    {...form['secondary_name']}
+                                    name="secondary_name"
+                                    placeholder="Secondary Name"
                                     handleOnChange={handleOnChange}
                                 />
                             </FormGroup>
@@ -221,7 +184,7 @@ const ItemReports = ({ history }) => {
     return (
         <Card>
             <CardBody>
-                <h4 className="header-title mt-0">Item Reports</h4>
+                <h4 className="header-title mt-0">Model Reports</h4>
                 <UncontrolledDropdown className="d-inline">
                     <DropdownToggle color="info">
                         Reports{' '}
@@ -232,7 +195,7 @@ const ItemReports = ({ history }) => {
                     <DropdownMenu>
                         <DropdownItem
                             onClick={() => {
-                                history.push(`/items/all`);
+                                history.push(`/models/all`);
                             }}>
                             All
                         </DropdownItem>
@@ -243,14 +206,14 @@ const ItemReports = ({ history }) => {
     );
 };
 
-const Items = ({ history }) => {
+const Models = ({ history }) => {
     return (
         <React.Fragment>
             <Row className="page-title">
                 <Col md={12}>
                     <PageTitle
-                        breadCrumbItems={[{ label: 'Items', path: '/items', active: true }]}
-                        title={'Items'}
+                        breadCrumbItems={[{ label: 'Models', path: '/models', active: true }]}
+                        title={'Models'}
                     />
                 </Col>
             </Row>
@@ -263,7 +226,7 @@ const Items = ({ history }) => {
 
             <Row>
                 <Col md={4}>
-                    <CreateItem />
+                    <CreateModel />
                 </Col>
             </Row>
 
@@ -288,4 +251,4 @@ const Items = ({ history }) => {
     );
 };
 
-export default Items;
+export default Models;

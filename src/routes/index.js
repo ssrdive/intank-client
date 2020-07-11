@@ -53,8 +53,8 @@ const Editor = React.lazy(() => import('../pages/forms/Editor'));
 const BasicTables = React.lazy(() => import('../pages/tables/Basic'));
 const AdvancedTables = React.lazy(() => import('../pages/tables/Advanced'));
 
-const Items = React.lazy(() => import('../pages/items'));
-const ItemsAll = React.lazy(() => import('../pages/items/all'));
+const Models = React.lazy(() => import('../pages/models'));
+const ModelsAll = React.lazy(() => import('../pages/models/all'));
 
 // handle auth and authorization
 const PrivateRoute = ({ component: Component, roles, ...rest }) => (
@@ -99,20 +99,20 @@ const dashboardRoute = {
 
 // items
 const itemsRoute = {
-    path: '/items',
-    name: 'Items',
+    path: '/models',
+    name: 'Models',
     exact: true,
     icon: FeatherIcon.Settings,
-    component: Items,
+    component: Models,
     route: PrivateRoute
 }
 
 const itemsSubRoute = [
     {
-        path: '/items/all',
-        name: 'All Items',
+        path: '/models/all',
+        name: 'All Models',
         exact: true,
-        component: ItemsAll,
+        component: ModelsAll,
         route: PrivateRoute,
         roles: ['Admin', 'Office Executive', 'Manager']
     },

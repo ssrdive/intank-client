@@ -5,14 +5,14 @@ import { apiAuth } from '../../basara-api';
 import PageTitle from '../../components/PageTitle';
 
 
-const AllItems = () => {
+const AllModels = () => {
 
     const [items, setItems] = useState(null);
 
     useEffect(() => {
         const fetchDetails = () => {
             apiAuth
-                .get(`/item/all`)
+                .get(`/model/all`)
                 .then(res => {
                     if (res.data === null) setItems(prevReceipts => []);
                     else setItems(prevReceipts => res.data);
@@ -30,10 +30,10 @@ const AllItems = () => {
                 <Col md={12}>
                     <PageTitle
                         breadCrumbItems={[
-                            { label: 'Items', path: '/items' },
-                            { label: 'All', path: '/items/all', active: true },
+                            { label: 'Models', path: '/models' },
+                            { label: 'All', path: '/models/all', active: true },
                         ]}
-                        title={'All Items'}
+                        title={'All Models'}
                     />
                 </Col>
             </Row>
@@ -42,34 +42,28 @@ const AllItems = () => {
                 <Col md={12}>
                     <Card>
                         <CardBody>
-                            <h4 className="header-title mt-0">All Items</h4>
+                            <h4 className="header-title mt-0">All Models</h4>
 
                             {items !== null ? (
                                 <Table className="mb-0" responsive={true} striped>
                                     <thead>
                                         <tr>
-                                            <th>Item ID</th>
                                             <th>Model ID</th>
-                                            <th>Category ID</th>
-                                            <th>Page Number</th>
-                                            <th>Item Number</th>
-                                            <th>Foreign ID</th>
-                                            <th>Item Name</th>
-                                            <th>Price</th>
+                                            <th>Name</th>
+                                            <th>Country</th>
+                                            <th>Primary Name</th>
+                                            <th>Secondary Name</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {items.map((item, index) => {
                                             return (
                                                 <tr key={index}>
-                                                    <td>{item.item_id}</td>
-                                                    <td>{item.model_id}</td>
-                                                    <td>{item.item_category_id}</td>
-                                                    <td>{item.page_no}</td>
-                                                    <td>{item.item_no}</td>
-                                                    <td>{item.foreign_id}</td>
-                                                    <td>{item.item_name}</td>
-                                                    <td>{item.price.toLocaleString()}</td>
+                                                    <td>{item.id}</td>
+                                                    <td>{item.name}</td>
+                                                    <td>{item.country}</td>
+                                                    <td>{item.primary_name}</td>
+                                                    <td>{item.secondary_name}</td>
                                                 </tr>
                                             );
                                         })}
@@ -86,4 +80,4 @@ const AllItems = () => {
     );
 };
 
-export default AllItems;
+export default AllModels;

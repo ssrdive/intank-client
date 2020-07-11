@@ -8,7 +8,7 @@ if(process.env.NODE_ENV === 'development') {
   }
   
   if(process.env.NODE_ENV === 'production') {
-    baseURL = 'https://nciller.app/api'
+    baseURL = 'https://intank.cloud/api'
   }
 
 export default axios.create({
