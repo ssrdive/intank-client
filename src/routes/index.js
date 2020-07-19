@@ -61,6 +61,11 @@ const WarehousesAll = React.lazy(() => import('../pages/warehouses/all'));
 
 const Transactions = React.lazy(() => import('../pages/transactions'));
 
+const GoodsIn = React.lazy(() => import('../pages/transactions/goodsin'));
+const GoodsOut = React.lazy(() => import('../pages/transactions/goodsout'));
+const GoodsTransfer = React.lazy(() => import('../pages/transactions/goodstransfer'));
+const GoodsReturn = React.lazy(() => import('../pages/transactions/goodsreturn'));
+
 // handle auth and authorization
 const PrivateRoute = ({ component: Component, roles, ...rest }) => (
     <Route
@@ -152,6 +157,41 @@ const transactionsRoute = {
     component: Transactions,
     route: PrivateRoute
 }
+
+const transactionsSubRoute = [
+    {
+        path: '/transactions/goods-in',
+        name: 'Goods In',
+        exact: true,
+        component: GoodsIn,
+        route: PrivateRoute,
+        roles: ['Admin', 'Office Executive', 'Manager']
+    },
+    {
+        path: '/transactions/goods-out',
+        name: 'Goods Out',
+        exact: true,
+        component: GoodsOut,
+        route: PrivateRoute,
+        roles: ['Admin', 'Office Executive', 'Manager']
+    },
+    {
+        path: '/transactions/goods-transfer',
+        name: 'Goods Transfer',
+        exact: true,
+        component: GoodsTransfer,
+        route: PrivateRoute,
+        roles: ['Admin', 'Office Executive', 'Manager']
+    },
+    {
+        path: '/transactions/goods-return',
+        name: 'Goods Return',
+        exact: true,
+        component: GoodsReturn,
+        route: PrivateRoute,
+        roles: ['Admin', 'Office Executive', 'Manager']
+    },
+];
 
 // requests
 // const requestsRoute = {
@@ -526,6 +566,7 @@ const allRoutes = [
     warehousesRoute,
     ...warehousesSubRoute,
     transactionsRoute,
+    ...transactionsSubRoute,
     // requestsRoute,
     // paymentsRoute,
     // loanCalculatorRoute,

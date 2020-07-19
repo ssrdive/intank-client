@@ -54,7 +54,8 @@ const Entry = ({ idx, entriesState, handleItemChange, handleItemDelete, setAccou
 
     return (
         <Form key={idx} inline>
-            <FormInput idx={idx} name="account" type="select" options={models} handleOnChange={handleItemChange} />
+            <Label>Model [To be developed]</Label>
+            {/* <FormInput idx={idx} name="account" type="select" options={models} handleOnChange={handleItemChange} /> */}
             &nbsp;&nbsp;&nbsp;
             <Input
                 type="number"
@@ -65,14 +66,15 @@ const Entry = ({ idx, entriesState, handleItemChange, handleItemDelete, setAccou
                 onChange={handleItemChange}
             />
             &nbsp;&nbsp;&nbsp;
-            <Input
+            {/* <Input
                 type="number"
                 data-idx={idx}
                 name="credit"
                 placeholder="Secondary Number"
                 value={entriesState[idx].credit}
                 onChange={handleItemChange}
-            />
+            /> */}
+            <Label>Secondary Number [To be developed]</Label>
             &nbsp;&nbsp;&nbsp;
             <Button color="warning" onClick={handleItemDelete}>
                 X
@@ -206,7 +208,7 @@ const GoodsIn = () => {
                     <Spinner className="m-2" type="grow" color="success" />
                 ) : (
                         <Button color="success" type="submit">
-                            Issue Goods In
+                            Issue Goods Out
                         </Button>
                     )}
             </>
@@ -216,19 +218,33 @@ const GoodsIn = () => {
     return (
         <Card>
             <CardBody>
-                <h4 className="header-title mt-0">Goods In</h4>
+                <h4 className="header-title mt-0">Goods Out</h4>
 
                 <Row>
                     <Col md={12}>
                         <Form onSubmit={handleFormSubmit}>
-                            <Label for="text">Location</Label>
-                            <FormGroup>
-                                <FormInput
-                                    {...form['warehouse_type']}
-                                    name="warehouse_type"
-                                    handleOnChange={handleOnChange}
-                                />
-                            </FormGroup>
+                            <Row>
+                                <Col md={6}>
+                                    <FormGroup>
+                                    <Label for="text">From</Label>
+                                        <FormInput
+                                            {...form['warehouse_type']}
+                                            name="warehouse_type"
+                                            handleOnChange={handleOnChange}
+                                        />
+                                    </FormGroup>
+                                </Col>
+                                <Col md={6}>
+                                    <FormGroup>
+                                    <Label for="text">To</Label>
+                                        <FormInput
+                                            {...form['warehouse_type']}
+                                            name="warehouse_type"
+                                            handleOnChange={handleOnChange}
+                                        />
+                                    </FormGroup>
+                                </Col>
+                            </Row>
                             <FormGroup>
                                 <Label for="text">Date</Label>
                                 <Flatpickr
@@ -267,50 +283,6 @@ const GoodsIn = () => {
     );
 }
 
-const Transactions = ({ history }) => {
-    return (
-        <Card>
-            <CardBody>
-                <h4 className="header-title mt-0">Transactions</h4>
-                <UncontrolledDropdown className="d-inline">
-                    <DropdownToggle color="info">
-                        Reports{' '}
-                        <i className="icon">
-                            <ChevronDown></ChevronDown>
-                        </i>
-                    </DropdownToggle>
-                    <DropdownMenu>
-                        <DropdownItem
-                            onClick={() => {
-                                history.push(`/transactions/goods-in`);
-                            }}>
-                            Goods In
-                        </DropdownItem>
-                        <DropdownItem
-                            onClick={() => {
-                                history.push(`/transactions/goods-out`);
-                            }}>
-                            Goods Out
-                        </DropdownItem>
-                        <DropdownItem
-                            onClick={() => {
-                                history.push(`/transactions/goods-transfer`);
-                            }}>
-                            Goods Transfer
-                        </DropdownItem>
-                        <DropdownItem
-                            onClick={() => {
-                                history.push(`/transactions/goods-return`);
-                            }}>
-                            Goods Return
-                        </DropdownItem>
-                    </DropdownMenu>
-                </UncontrolledDropdown>
-            </CardBody>
-        </Card>
-    );
-};
-
 const Warehouses = ({ history }) => {
     return (
         <React.Fragment>
@@ -324,8 +296,8 @@ const Warehouses = ({ history }) => {
             </Row>
 
             <Row>
-                <Col md={4}>
-                    <Transactions history={history} />
+                <Col md={12}>
+                    <GoodsIn />
                 </Col>
             </Row>
         </React.Fragment>

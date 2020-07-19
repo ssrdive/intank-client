@@ -267,50 +267,6 @@ const GoodsIn = () => {
     );
 }
 
-const Transactions = ({ history }) => {
-    return (
-        <Card>
-            <CardBody>
-                <h4 className="header-title mt-0">Transactions</h4>
-                <UncontrolledDropdown className="d-inline">
-                    <DropdownToggle color="info">
-                        Reports{' '}
-                        <i className="icon">
-                            <ChevronDown></ChevronDown>
-                        </i>
-                    </DropdownToggle>
-                    <DropdownMenu>
-                        <DropdownItem
-                            onClick={() => {
-                                history.push(`/transactions/goods-in`);
-                            }}>
-                            Goods In
-                        </DropdownItem>
-                        <DropdownItem
-                            onClick={() => {
-                                history.push(`/transactions/goods-out`);
-                            }}>
-                            Goods Out
-                        </DropdownItem>
-                        <DropdownItem
-                            onClick={() => {
-                                history.push(`/transactions/goods-transfer`);
-                            }}>
-                            Goods Transfer
-                        </DropdownItem>
-                        <DropdownItem
-                            onClick={() => {
-                                history.push(`/transactions/goods-return`);
-                            }}>
-                            Goods Return
-                        </DropdownItem>
-                    </DropdownMenu>
-                </UncontrolledDropdown>
-            </CardBody>
-        </Card>
-    );
-};
-
 const Warehouses = ({ history }) => {
     return (
         <React.Fragment>
@@ -324,8 +280,8 @@ const Warehouses = ({ history }) => {
             </Row>
 
             <Row>
-                <Col md={4}>
-                    <Transactions history={history} />
+                <Col md={12}>
+                    <GoodsIn />
                 </Col>
             </Row>
         </React.Fragment>
