@@ -27,8 +27,6 @@ import { loadDropdownGeneric } from '../../helpers/form';
 import PageTitle from '../../components/PageTitle';
 
 import {
-    TEXT_INPUT_REQUIRED,
-    NUMBER_INPUT_REQUIRED,
     DROPDOWN_DEFAULT,
 } from '../../constants/formValues';
 
@@ -54,22 +52,31 @@ const Entry = ({ idx, entriesState, handleItemChange, handleItemDelete, setAccou
 
     return (
         <Form key={idx} inline>
-            <FormInput idx={idx} name="account" type="select" options={models} handleOnChange={handleItemChange} />
+            <FormInput idx={idx} name="model" type="select" options={models} handleOnChange={handleItemChange} />
             &nbsp;&nbsp;&nbsp;
             <Input
-                type="number"
+                type="text"
                 data-idx={idx}
-                name="debit"
+                name="primary_number"
                 placeholder="Primary Number"
                 value={entriesState[idx].debit}
                 onChange={handleItemChange}
             />
             &nbsp;&nbsp;&nbsp;
             <Input
+                type="text"
+                data-idx={idx}
+                name="secondary_number"
+                placeholder="Secondary Number"
+                value={entriesState[idx].credit}
+                onChange={handleItemChange}
+            />
+            &nbsp;&nbsp;&nbsp;
+            <Input
                 type="number"
                 data-idx={idx}
-                name="credit"
-                placeholder="Secondary Number"
+                name="price"
+                placeholder="Price"
                 value={entriesState[idx].credit}
                 onChange={handleItemChange}
             />
@@ -116,7 +123,8 @@ const GoodsIn = () => {
     const [submitStatus, setSubmitStatus] = useState({ status: null, message: '' });
 
     const [form, setForm] = useState({
-        warehouse_type: DROPDOWN_DEFAULT,
+        supplier: DROPDOWN_DEFAULT,
+        to_warehouse: DROPDOWN_DEFAULT,
         date: { value: getDate('-') },
     });
 
@@ -128,15 +136,15 @@ const GoodsIn = () => {
         });
     };
 
-    const handleItemChange = e => {
+    const handleItemChange = (e, idx) => {
         const updatedEntries = [...entriesState];
-        updatedEntries[e.target.dataset.idx][e.target.name] = e.target.value;
+        updatedEntries[idx][e.target.name] = e.target.value;
         setEntriesState(updatedEntries);
     };
 
     const setAccount = (idx, account) => {
         const updatedEntries = [...entriesState];
-        updatedEntries[idx].account = account;
+        updatedEntries[idx].model = account;
         setEntriesState(updatedEntries);
     };
 
@@ -147,7 +155,7 @@ const GoodsIn = () => {
         setEntriesState(updatedEntries);
     };
 
-    const blankEntry = { account: 0, debit: '', credit: '' };
+    const blankEntry = { model: '', primary_number: '', secondary_number: '', price: 0 };
     const [entriesState, setEntriesState] = useState([blankEntry]);
 
     const addEntry = () => {
@@ -164,7 +172,8 @@ const GoodsIn = () => {
     };
 
     useEffect(() => {
-        loadDropdownGeneric('warehouse', 'warehouse_type', setForm);
+        loadDropdownGeneric('warehouse', 'supplier', setForm);
+        loadDropdownGeneric('warehouse', 'to_warehouse', setForm);
     }, []);
 
     const handleFormSubmit = e => {
@@ -172,23 +181,28 @@ const GoodsIn = () => {
         setSubmitStatus({ status: null, message: '' });
         e.persist();
         e.preventDefault();
+        if (form.supplier.value == form.to_warehouse.value) {
+            setLoading(prevLoading => false);
+            setSubmitStatus({ status: 'failure', message: 'From and To location cannot be the same' });
+            return
+        }
         apiAuth
             .post(
-                '/warehouse/create',
+                '/transactions/goodsin',
                 qs.stringify({
-                    warehouse_type_id: form.warehouse_type.value,
-                    name: form.name.value,
-                    address: form.address.value,
-                    contact: form.contact.value,
+                    warehouse_id: form.to_warehouse.value,
+                    from_warehouse_id: form.supplier.value,
+                    date: form.date.value,
+                    goods: JSON.stringify(entriesState)
                 })
             )
             .then(response => {
                 setLoading(prevLoading => false);
-                setSubmitStatus({ status: 'success', message: `Warehouse created with number ${response.data}` });
+                setSubmitStatus({ status: 'success', message: `Goods in issued with document number ${response.data}` });
             })
             .catch(err => {
                 setLoading(prevLoading => false);
-                setSubmitStatus({ status: 'failure', message: 'Something went wrong' });
+                setSubmitStatus({ status: 'failure', message: 'Something went wrong\n1. Check for duplicate number\n2. Check if stock is present in the selected warehouse' });
             });
     };
 
@@ -221,11 +235,19 @@ const GoodsIn = () => {
                 <Row>
                     <Col md={12}>
                         <Form onSubmit={handleFormSubmit}>
-                            <Label for="text">Location</Label>
+                            <Label for="text">Supplier</Label>
                             <FormGroup>
                                 <FormInput
-                                    {...form['warehouse_type']}
-                                    name="warehouse_type"
+                                    {...form['supplier']}
+                                    name="supplier"
+                                    handleOnChange={handleOnChange}
+                                />
+                            </FormGroup>
+                            <Label for="text">To Warehouse</Label>
+                            <FormGroup>
+                                <FormInput
+                                    {...form['to_warehouse']}
+                                    name="to_warehouse"
                                     handleOnChange={handleOnChange}
                                 />
                             </FormGroup>
@@ -250,7 +272,7 @@ const GoodsIn = () => {
                                         <Entry
                                             idx={idx}
                                             entriesState={entriesState}
-                                            handleItemChange={handleItemChange}
+                                            handleItemChange={e => handleItemChange(e, idx)}
                                             handleItemDelete={e => handleItemDelete(e, idx)}
                                             setAccount={setAccount}
                                         />

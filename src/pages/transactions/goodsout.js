@@ -32,60 +32,6 @@ import {
     DROPDOWN_DEFAULT,
 } from '../../constants/formValues';
 
-
-
-const Entry = ({ idx, entriesState, handleItemChange, handleItemDelete, setAccount }) => {
-    const [models, setModels] = useState([]);
-
-    useEffect(() => {
-        apiAuth
-            .get('/dropdown/model')
-            .then(response => {
-                setModels(prevModels => {
-                    return response.data;
-                });
-                if (response.data.length > 0) setAccount(idx, response.data[0].id);
-            })
-            .catch(err => {
-                console.log(err);
-            });
-        // eslint-disable-next-line
-    }, []);
-
-    return (
-        <Form key={idx} inline>
-            <Label>Model [To be developed]</Label>
-            {/* <FormInput idx={idx} name="account" type="select" options={models} handleOnChange={handleItemChange} /> */}
-            &nbsp;&nbsp;&nbsp;
-            <Input
-                type="number"
-                data-idx={idx}
-                name="debit"
-                placeholder="Primary Number"
-                value={entriesState[idx].debit}
-                onChange={handleItemChange}
-            />
-            &nbsp;&nbsp;&nbsp;
-            {/* <Input
-                type="number"
-                data-idx={idx}
-                name="credit"
-                placeholder="Secondary Number"
-                value={entriesState[idx].credit}
-                onChange={handleItemChange}
-            /> */}
-            <Label>Secondary Number [To be developed]</Label>
-            &nbsp;&nbsp;&nbsp;
-            <Button color="warning" onClick={handleItemDelete}>
-                X
-            </Button>
-            <br />
-            <br />
-        </Form>
-    );
-};
-
-
 const FormInput = props => {
     return (
         <>
@@ -113,14 +59,80 @@ const FormInput = props => {
     );
 };
 
+const MoveItem = ({ idx, itemState, handleItemChange, handleItemDelete, handleEnterPressed }) => {
+
+    return (
+        <Form key={idx} inline>
+            <label style={{ color: 'green' }}>{itemState[idx].model}</label>
+            &nbsp;&nbsp;&nbsp;
+            <Input
+                type="text"
+                data-idx={idx}
+                name="primaryNumber"
+                className="primaryNumber"
+                placeholder="Primary Number"
+                value={itemState[idx].primaryNumber}
+                onChange={(e) => {handleItemChange(e, idx)}}
+                onKeyDown={handleEnterPressed}
+            />
+            &nbsp;&nbsp;&nbsp;
+            <label style={{ color: 'green' }}>{itemState[idx].secondaryNumber}</label>
+            &nbsp;&nbsp;&nbsp;
+            <Input
+                type="number"
+                data-idx={idx}
+                name="price"
+                className="price"
+                placeholder="Price"
+                value={itemState[idx].price}
+                onChange={(e) => {handleItemChange(e, idx)}}
+            />
+            &nbsp;&nbsp;&nbsp;
+            <Button color='warning'
+                onClick={handleItemDelete}>Remove</Button>
+            <br /><br />
+        </Form>
+    );
+};
+
 const GoodsIn = () => {
     const [loading, setLoading] = useState(false);
     const [submitStatus, setSubmitStatus] = useState({ status: null, message: '' });
 
     const [form, setForm] = useState({
-        warehouse_type: DROPDOWN_DEFAULT,
+        from: DROPDOWN_DEFAULT,
+        to: DROPDOWN_DEFAULT,
         date: { value: getDate('-') },
     });
+
+    const blankItem = { model: 'Model', primaryNumber: '', secondaryNumber: 'Primary Number', price: '' };
+    const [itemState, setItemState] = useState([
+        { model: 'Model', primaryNumber: '', secondaryNumber: 'Primary Number', price: '' }
+    ]);
+
+    const handleEnterPressed = (e, idx) => {
+        if (e.keyCode === 13) {
+            setPrimaryNumberModelHandler(idx, 'Loading...', 'Loading...');
+            apiAuth.post('/getSecondaryNumberModelName', qs.stringify({ primaryNumber: itemState[idx].primaryNumber }))
+                .then(response => {
+                    const { secondaryNumber, model } = response.data;
+                    console.log(secondaryNumber);
+                    console.log(response.data);
+                    setPrimaryNumberModelHandler(idx, secondaryNumber, model);
+                })
+                .catch(error => {
+                    setPrimaryNumberModelHandler(idx, 'Error', 'Error');
+                })
+        }
+    }
+
+    const setPrimaryNumberModelHandler = (idx, primaryNumber, model) => {
+        const updatedItems = [...itemState];
+        updatedItems[idx].secondaryNumber = primaryNumber;
+        updatedItems[idx].model = model;
+        setItemState(prevItemState => updatedItems);
+    }
+
 
     const setDate = value => {
         setForm(prevForm => {
@@ -130,30 +142,53 @@ const GoodsIn = () => {
         });
     };
 
-    const handleItemChange = e => {
-        const updatedEntries = [...entriesState];
-        updatedEntries[e.target.dataset.idx][e.target.name] = e.target.value;
-        setEntriesState(updatedEntries);
-    };
-
-    const setAccount = (idx, account) => {
-        const updatedEntries = [...entriesState];
-        updatedEntries[idx].account = account;
-        setEntriesState(updatedEntries);
-    };
+    const handleItemChange = (e, idx) => {
+        const updatedItems = [...itemState];
+        updatedItems[idx][e.target.name] = e.target.value;
+        setItemState(updatedItems);
+    }
 
     const handleItemDelete = (e, idx) => {
         e.preventDefault();
-        const updatedEntries = [...entriesState];
-        updatedEntries.splice(idx, 1);
-        setEntriesState(updatedEntries);
-    };
+        const updatedItems = [...itemState];
+        updatedItems.splice(idx, 1);
+        setItemState(updatedItems);
+    }
 
-    const blankEntry = { account: 0, debit: '', credit: '' };
-    const [entriesState, setEntriesState] = useState([blankEntry]);
+    useEffect(() => {
+        loadDropdownGeneric('warehouse', 'from', setForm);
+        loadDropdownGeneric('warehouse', 'to', setForm);
+    }, []);
 
-    const addEntry = () => {
-        setEntriesState([...entriesState, { ...blankEntry }]);
+    const handleFormSubmit = e => {
+        setLoading(prevLoading => true);
+        setSubmitStatus({ status: null, message: '' });
+        e.persist();
+        e.preventDefault();
+        if (form.to.value == form.from.value) {
+            setLoading(prevLoading => false);
+            setSubmitStatus({ status: 'failure', message: 'From and To location cannot be the same' });
+            return
+        }
+        apiAuth
+            .post(
+                '/transactions/movement',
+                qs.stringify({
+                    document_type: 2,
+                    warehouse_id: form.from.value,
+                    from_warehouse_id: form.to.value,
+                    date: form.date.value,
+                    goods: JSON.stringify(itemState)
+                })
+            )
+            .then(response => {
+                setLoading(prevLoading => false);
+                setSubmitStatus({ status: 'success', message: `Goods in issued with document number ${response.data}` });
+            })
+            .catch(err => {
+                setLoading(prevLoading => false);
+                setSubmitStatus({ status: 'failure', message: 'Something went wrong\n1. Check for duplicate number\n2. Check if stock is present in the selected warehouse' });
+            });
     };
 
     const handleOnChange = e => {
@@ -165,33 +200,8 @@ const GoodsIn = () => {
         });
     };
 
-    useEffect(() => {
-        loadDropdownGeneric('warehouse', 'warehouse_type', setForm);
-    }, []);
-
-    const handleFormSubmit = e => {
-        setLoading(prevLoading => true);
-        setSubmitStatus({ status: null, message: '' });
-        e.persist();
-        e.preventDefault();
-        apiAuth
-            .post(
-                '/warehouse/create',
-                qs.stringify({
-                    warehouse_type_id: form.warehouse_type.value,
-                    name: form.name.value,
-                    address: form.address.value,
-                    contact: form.contact.value,
-                })
-            )
-            .then(response => {
-                setLoading(prevLoading => false);
-                setSubmitStatus({ status: 'success', message: `Warehouse created with number ${response.data}` });
-            })
-            .catch(err => {
-                setLoading(prevLoading => false);
-                setSubmitStatus({ status: 'failure', message: 'Something went wrong' });
-            });
+    const addItem = () => {
+        setItemState([...itemState, { ...blankItem }]);
     };
 
     const SubmitComponent = () => {
@@ -226,20 +236,20 @@ const GoodsIn = () => {
                             <Row>
                                 <Col md={6}>
                                     <FormGroup>
-                                    <Label for="text">From</Label>
+                                        <Label for="text">From</Label>
                                         <FormInput
-                                            {...form['warehouse_type']}
-                                            name="warehouse_type"
+                                            {...form['from']}
+                                            name="from"
                                             handleOnChange={handleOnChange}
                                         />
                                     </FormGroup>
                                 </Col>
                                 <Col md={6}>
                                     <FormGroup>
-                                    <Label for="text">To</Label>
+                                        <Label for="text">To</Label>
                                         <FormInput
-                                            {...form['warehouse_type']}
-                                            name="warehouse_type"
+                                            {...form['to']}
+                                            name="to"
                                             handleOnChange={handleOnChange}
                                         />
                                     </FormGroup>
@@ -255,24 +265,26 @@ const GoodsIn = () => {
                                     className="form-control"
                                 />
                             </FormGroup>
-                            <Button color="info" onClick={addEntry}>
+                            <Button color="info" onClick={addItem}>
                                 Add
                             </Button>
                             <br />
                             <br />
-                            {entriesState.map((val, idx) => {
-                                return (
-                                    <div key={idx} xs={12} sm={12} md={12}>
-                                        <Entry
+                            {
+                                itemState.map((val, idx) => {
+                                    return (
+                                        // <GridItem key={idx} xs={12} sm={12} md={12}>
+                                        <MoveItem
                                             idx={idx}
-                                            entriesState={entriesState}
+                                            itemState={itemState}
                                             handleItemChange={handleItemChange}
-                                            handleItemDelete={e => handleItemDelete(e, idx)}
-                                            setAccount={setAccount}
+                                            handleEnterPressed={(e) => handleEnterPressed(e, idx)}
+                                            handleItemDelete={(e) => handleItemDelete(e, idx)}
                                         />
-                                    </div>
-                                );
-                            })}
+                                        // </GridItem>
+                                    );
+                                })
+                            }
                             <br />
                             <SubmitComponent />
                         </Form>
