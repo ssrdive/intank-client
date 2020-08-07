@@ -1,127 +1,169 @@
-import React, { Component } from 'react';
-import { Row, Col, UncontrolledButtonDropdown, DropdownMenu, DropdownItem, DropdownToggle } from 'reactstrap';
-import Flatpickr from 'react-flatpickr'
-import { ChevronDown, Mail, Printer, File, Users, Image, ShoppingBag } from 'react-feather';
+import React, { useState, useEffect } from 'react';
+import { Row, Col, CardBody, Card, Form, FormGroup, Input, Label, Button } from 'reactstrap';
 
-import { getLoggedInUser } from '../../helpers/authUtils';
-import Loader from '../../components/Loader';
-import OverviewWidget from '../../components/OverviewWidget';
+import PageTitle from '../../components/PageTitle';
+import { TEXT_INPUT_REQUIRED, DROPDOWN_DEFAULT, NUMBER_INPUT_REQUIRED } from '../../constants/formValues';
 
-import Statistics from './Statistics';
-import RevenueChart from './RevenueChart';
-import TargetChart from './TargetChart';
-import SalesChart from './SalesChart';
-import Orders from './Orders';
-import Performers from './Performers';
-import Tasks from './Tasks';
-import Chat from './Chat';
+import { loadDropdownGeneric } from '../../helpers/form';
 
+const FormInput = props => {
+    return (
+        <>
+            {props.type === 'select' ? (
+                <Input type="select" name={props.name} onChange={props.handleOnChange}>
+                    {props.options.map(option => {
+                        return (
+                            <option key={option.id} value={option.id}>
+                                {option.name}
+                            </option>
+                        );
+                    })}
+                </Input>
+            ) : (
+                    <Input
+                        type={props.type}
+                        value={props.value}
+                        onChange={props.handleOnChange}
+                        name={props.name}
+                        placeholder={props.placeholder}
+                        required={props.required}
+                    />
+                )}
+        </>
+    );
+};
 
-class Dashboard extends Component {
+export default ({ history }) => {
 
-    constructor(props) {
-        super(props);
+    const [form, setForm] = useState({
+        search: TEXT_INPUT_REQUIRED,
+        warehouses: DROPDOWN_DEFAULT,
+        model: DROPDOWN_DEFAULT,
+        age: NUMBER_INPUT_REQUIRED,
+    })
 
-        var oneWeekAgo = new Date();
-        oneWeekAgo.setDate(oneWeekAgo.getDate() - 15);
-
-        this.state = {
-            user: getLoggedInUser(),
-            filterDate: [oneWeekAgo, new Date()]
-        };
+    const handleFormSubmitSearch = e => {
+        e.persist();
+        e.preventDefault();
+        history.push(`/search?search=${form.search.value}`);
     }
 
-    render() {
-
-        return (
-            <React.Fragment>
-                <div className="">
-                    { /* preloader */}
-                    {this.props.loading && <Loader />}
-
-                    <Row className="page-title align-items-center">
-                        <Col sm={4} xl={6}>
-                            <h4 className="mb-1 mt-0">Dashboard</h4>
-                        </Col>
-                        <Col sm={8} xl={6}>
-                            <form className="form-inline float-sm-right mt-3 mt-sm-0">
-                                <div className="form-group mb-sm-0 mr-2">
-                                    <Flatpickr value={this.state.filterDate}
-                                        onChange={date => { this.setState({ filterDate: date }) }} options={{ mode: "range" }}
-                                        className="form-control" />
-                                </div>
-                                <UncontrolledButtonDropdown>
-                                    <DropdownToggle color="primary" className="dropdown-toggle">
-                                        <i className='uil uil-file-alt mr-1'></i>Download
-                                            <i className="icon ml-1"><ChevronDown /></i>
-                                    </DropdownToggle>
-                                    <DropdownMenu right>
-                                        <DropdownItem>
-                                            <Mail className="icon-dual icon-xs mr-2"></Mail>
-                                            <span>Email</span>
-                                        </DropdownItem>
-                                        <DropdownItem>
-                                            <Printer className="icon-dual icon-xs mr-2"></Printer>
-                                            <span>Print</span>
-                                        </DropdownItem>
-                                        <DropdownItem divider />
-                                        <DropdownItem>
-                                            <File className="icon-dual icon-xs mr-2"></File>
-                                            <span>Re-Generate</span>
-                                        </DropdownItem>
-                                    </DropdownMenu>
-                                </UncontrolledButtonDropdown>
-                            </form>
-                        </Col>
-                    </Row>
-
-                    {/* stats */}
-                    <Statistics></Statistics>
-
-                    {/* charts */}
-                    <Row>
-                        <Col xl={3}>
-                            <OverviewWidget items={[
-                                { title: '121,000', description: 'Total Visitors', icon: Users },
-                                { title: '21,000', description: 'Product Views', icon: Image },
-                                { title: '$21.5', description: 'Revenue Per Visitor', icon: ShoppingBag }
-                            ]}></OverviewWidget>
-                        </Col>
-
-                        <Col xl={6}>
-                            <RevenueChart />
-                        </Col>
-                        <Col xl={3}>
-                            <TargetChart />
-                        </Col>
-                    </Row>
-
-                    {/* charts */}
-                    <Row>
-                        <Col xl={5}>
-                            <SalesChart />
-                        </Col>
-                        <Col xl={7}>
-                            <Orders />
-                        </Col>
-                    </Row>
-
-                    <Row>
-                        <Col xl={4}>
-                            <Performers />
-                        </Col>
-                        <Col xl={4}>
-                            <Tasks />
-                        </Col>
-                        <Col xl={4}>
-                            <Chat />
-                        </Col>
-                    </Row>
-                </div>
-            </React.Fragment>
-        )
+    const handleFormSubmitWarehouseStock = e => {
+        e.persist();
+        e.preventDefault();
+        history.push(`/stock?warehouse=${form.warehouses.value}`);
     }
-}
 
+    const handleFormSubmitAgeWise = e => {
+        e.persist();
+        e.preventDefault();
+        history.push(`/agewise?model=${form.model.value}&age=${form.age.value}`);
+    }
 
-export default Dashboard;
+    const handleOnChange = e => {
+        e.persist();
+        setForm(prevForm => {
+            const updatedForm = { ...prevForm, [e.target.name]: { ...prevForm[e.target.name] } };
+            updatedForm[e.target.name].value = e.target.value;
+            return updatedForm;
+        });
+    };
+
+    useEffect(() => {
+        loadDropdownGeneric('warehouse', 'warehouses', setForm);
+        loadDropdownGeneric('model', 'model', setForm);
+    }, []);
+
+    return (
+        <React.Fragment>
+            <Row className="page-title">
+                <Col md={12}>
+                    <PageTitle
+                        breadCrumbItems={[
+                            { label: 'Dashboard', path: '/', active: true },
+                        ]}
+                        title={'Dashboard'}
+                    />
+                </Col>
+            </Row>
+
+            <Row>
+                <Col md={6}>
+                    <Card>
+                        <CardBody>
+                            <h4 className="header-title mt-0">Search</h4>
+
+                            <Form onSubmit={handleFormSubmitSearch}>
+                            <FormGroup>
+                                <Label>Search Keyword</Label>
+                                <FormInput
+                                    {...form['search']}
+                                    name="search"
+                                    placeholder="Search"
+                                    handleOnChange={handleOnChange}
+                                />
+                            </FormGroup>
+                            <Button color="primary" type="submit">
+                                Search
+                            </Button>
+                        </Form>
+                        </CardBody>
+                    </Card>
+                </Col>
+
+                <Col md={6}>
+                    <Card>
+                        <CardBody>
+                            <h4 className="header-title mt-0">Select Warehouse</h4>
+
+                            <Form onSubmit={handleFormSubmitWarehouseStock}>
+                            <FormGroup>
+                                <Label>Search Warehouse</Label>
+                                <FormInput
+                                    {...form['warehouses']}
+                                    name="warehouses"
+                                    handleOnChange={handleOnChange}
+                                />
+                            </FormGroup>
+                            <Button color="primary" type="submit">
+                                Search
+                            </Button>
+                        </Form>
+                        </CardBody>
+                    </Card>
+                </Col>
+
+                <Col md={6}>
+                    <Card>
+                        <CardBody>
+                            <h4 className="header-title mt-0">Age-wise Analysis Report</h4>
+
+                            <Form onSubmit={handleFormSubmitAgeWise}>
+                            <FormGroup>
+                                <Label>Select Model</Label>
+                                <FormInput
+                                    {...form['model']}
+                                    name="model"
+                                    handleOnChange={handleOnChange}
+                                />
+                            </FormGroup>
+                            <FormGroup>
+                                <Label>Age</Label>
+                                <FormInput
+                                    {...form['age']}
+                                    name="age"
+                                    placeholder="Age in Days"
+                                    handleOnChange={handleOnChange}
+                                />
+                            </FormGroup>
+                            <Button color="primary" type="submit">
+                                Search
+                            </Button>
+                        </Form>
+                        </CardBody>
+                    </Card>
+                </Col>
+            </Row>
+        </React.Fragment>
+    );
+};

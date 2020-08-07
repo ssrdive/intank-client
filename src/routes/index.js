@@ -24,7 +24,10 @@ const CalendarApp = React.lazy(() => import('../pages/apps/Calendar'));
 // const TaskBoard = React.lazy(() => import('../pages/apps/Tasks/Board'));
 
 // pages
-const Starter = React.lazy(() => import('../pages/other/Starter'));
+const Dashboard = React.lazy(() => import('../pages/dashboard'));
+const Stock = React.lazy(() => import('../pages/dashboard/stock'));
+const Search = React.lazy(() => import('../pages/dashboard/search'));
+const Agewise = React.lazy(() => import('../pages/dashboard/agewise'));
 // const Profile = React.lazy(() => import('../pages/other/Profile/'));
 // const Activity = React.lazy(() => import('../pages/other/Activity'));
 // const Invoice = React.lazy(() => import('../pages/other/Invoice'));
@@ -103,9 +106,36 @@ const dashboardRoute = {
     name: 'Dashboard',
     header: 'Navigation',
     icon: FeatherIcon.Home,
-    component: Starter,
+    component: Dashboard,
     route: PrivateRoute
 };
+
+const dashboardSubRoutes = [
+    {
+        path: '/stock',
+        name: 'Stock',
+        exact: true,
+        component: Stock,
+        route: PrivateRoute,
+        roles: ['Admin', 'Office Executive', 'Manager']
+    },
+    {
+        path: '/search',
+        name: 'Search',
+        exact: true,
+        component: Search,
+        route: PrivateRoute,
+        roles: ['Admin', 'Office Executive', 'Manager']
+    },
+    {
+        path: '/agewise',
+        name: 'Agewise',
+        exact: true,
+        component: Agewise,
+        route: PrivateRoute,
+        roles: ['Admin', 'Office Executive', 'Manager']
+    },
+];
 
 // items
 const modelsRoute = {
@@ -561,6 +591,7 @@ const flattenRoutes = routes => {
 const allRoutes = [
     rootRoute,
     dashboardRoute,
+    ...dashboardSubRoutes,
     modelsRoute,
     ...modelsSubRoute,
     warehousesRoute,
