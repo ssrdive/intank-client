@@ -67,7 +67,7 @@ const Search = ({ location }) => {
                                                     <td>{item.document_id}</td>
                                                     <td><Link to={'/search?search=' + item.model}>{item.model}</Link></td>
                                                     <td><Link to={'/stock?warehouse=' + item.warehouse_id}>{item.warehouse}</Link></td>
-                                                    <td>{item.primary_id}</td>
+                                                    <td><Link to={'/history?id=' + item.primary_id}>{item.primary_id}</Link></td>
                                                     <td>{item.secondary_id}</td>
                                                     <td>{item.price}</td>
                                                 </tr>

@@ -9,15 +9,14 @@ import PageTitle from '../../components/PageTitle';
 const Search = ({ location }) => {
 
     const params = new URLSearchParams(location.search);
-    const model = params.get('model');
-    const age = params.get('age');
+    const id = params.get('id');
 
     const [warehouses, setWarehouses] = useState(null);
 
     useEffect(() => {
         const fetchDetails = () => {
             apiAuth
-                .get(`/agewise?model=${model}&age=${age}`)
+                .get(`/history/${id}`)
                 .then(res => {
                     if (res.data === null) setWarehouses(prevReceipts => []);
                     else setWarehouses(prevReceipts => res.data);
@@ -38,7 +37,7 @@ const Search = ({ location }) => {
                             { label: 'Warehouses', path: '/warehouses' },
                             { label: 'All', path: '/warehouses/all', active: true },
                         ]}
-                        title={'Agewise'}
+                        title={'Stock History'}
                     />
                 </Col>
             </Row>
@@ -47,7 +46,7 @@ const Search = ({ location }) => {
                 <Col md={12}>
                     <Card>
                         <CardBody>
-                            <h4 className="header-title mt-0">Age-wise</h4>
+                            <h4 className="header-title mt-0">Stock History</h4>
 
                             {warehouses !== null ? (
                                 <Table className="mb-0" responsive={true} striped>
@@ -59,7 +58,9 @@ const Search = ({ location }) => {
                                             <th>In Stock For</th>
                                             <th>Price</th>
                                             <th>Model</th>
-                                            <th>Date</th>
+                                            <th>Warehouse</th>
+                                            <th>Date In</th>
+                                            <th>Date Out</th>
                                             <th>Document Type</th>  
                                         </tr>
                                     </thead>
@@ -68,12 +69,14 @@ const Search = ({ location }) => {
                                             return (
                                                 <tr key={index}>
                                                     <td>{item.document_id}</td>
-                                                    <td><Link to={'/history?id=' + item.primary_id}>{item.primary_id}</Link></td>
+                                                    <td>{item.primary_id}</td>
                                                     <td>{item.secondary_id}</td>
                                                     <td>{item.in_stock_for} days</td>
                                                     <td>{item.price}</td>
-                                                    <td><Link to={'/search?search=' + item.model}>{item.model}</Link></td>
-                                                    <td>{item.date}</td>
+                                                    <td>{item.model}</td>
+                                                    <td><Link to={'/stock?warehouse=' + item.warehouse_id}>{item.warehouse}</Link></td>
+                                                    <td>{item.date_in}</td>
+                                                    <td>{item.date_out}</td>
                                                     <td>{item.delivery_document_type}</td>
                                                 </tr>
                                             );

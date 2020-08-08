@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Chart from 'react-apexcharts';
-import { Card, CardBody } from 'reactstrap';
+import { apiAuth } from '../../basara-api';
+import { Card, CardBody, Spinner } from 'reactstrap';
 
 const SalesChart = () => {
+    const [labelData, setLabelData] = useState([]);
+
     const options = {
         chart: {
             height: 302,
@@ -12,7 +15,6 @@ const SalesChart = () => {
             },
             parentHeightOffset: 0,
         },
-        colors: ["#5369f8", "#43d39e", "#f77e53", "#ffbe0b"],
         grid: {
             borderColor: '#f1f3fa',
             padding: {
@@ -37,11 +39,11 @@ const SalesChart = () => {
                 vertical: 3
             }
         },
-        labels: ['Clothes 44k', 'Smartphons 55k', 'Electronics 41k', 'Other 17k'],
+        labels: labelData,
         responsive: [{
             breakpoint: 480,
             options: {
-                
+
                 legend: {
                     position: 'bottom'
                 }
@@ -49,25 +51,57 @@ const SalesChart = () => {
         }],
         tooltip: {
             y: {
-                formatter: function(value) { return value + "k" }
+                formatter: function (value) { return value + "k" }
             },
         }
     };
 
-    const data = [44, 55, 41, 17];
+    const [data, setData] = useState([]);
+
+    const [warehouses, setWarehouses] = useState(null);
+
+    useEffect(() => {
+        const fetchDetails = () => {
+            apiAuth
+                .get(`/stock/bymodel`)
+                .then(res => {
+                    if (res.data === null) setWarehouses(prevReceipts => []);
+                    else {
+                        console.log(res.data)
+                        let darr = []
+                        let larr = []
+                        for(let i = 0; i < res.data.length; i++) {
+                            darr.push(res.data[i].count);
+                            larr.push(res.data[i].model);
+                        }
+                        setData(prevData => darr);
+                        setLabelData(prevData => larr);
+                        setWarehouses(prevReceipts => res.data);
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                });
+        };
+        fetchDetails();
+    }, []);
 
     return (
         <Card>
             <CardBody className="">
-                <h5 className="card-title mt-0 mb-0 header-title">Sales By Category</h5>
+                <h5 className="card-title mt-0 mb-0 header-title">Stock By Models</h5>
 
-                <Chart
-                    options={options}
-                    series={data}
-                    type="donut"
-                    className="apex-charts mb-0 mt-4"
-                    height={302}
-                />
+                {warehouses !== null ? <>
+                    <Chart
+                        options={options}
+                        series={data}
+                        type="donut"
+                        className="apex-charts mb-0 mt-4"
+                        height={302}
+                    />
+                </> : (
+                        <Spinner type="grow" color="primary" />
+                    )}
             </CardBody>
         </Card>
     );

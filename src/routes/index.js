@@ -28,6 +28,7 @@ const Dashboard = React.lazy(() => import('../pages/dashboard'));
 const Stock = React.lazy(() => import('../pages/dashboard/stock'));
 const Search = React.lazy(() => import('../pages/dashboard/search'));
 const Agewise = React.lazy(() => import('../pages/dashboard/agewise'));
+const History = React.lazy(() => import('../pages/dashboard/history'));
 // const Profile = React.lazy(() => import('../pages/other/Profile/'));
 // const Activity = React.lazy(() => import('../pages/other/Activity'));
 // const Invoice = React.lazy(() => import('../pages/other/Invoice'));
@@ -132,6 +133,14 @@ const dashboardSubRoutes = [
         name: 'Agewise',
         exact: true,
         component: Agewise,
+        route: PrivateRoute,
+        roles: ['Admin', 'Office Executive', 'Manager']
+    },
+    {
+        path: '/history',
+        name: 'History',
+        exact: true,
+        component: History,
         route: PrivateRoute,
         roles: ['Admin', 'Office Executive', 'Manager']
     },

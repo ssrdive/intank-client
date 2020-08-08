@@ -193,7 +193,8 @@ const GoodsIn = () => {
                     warehouse_id: form.to_warehouse.value,
                     from_warehouse_id: form.supplier.value,
                     date: form.date.value,
-                    goods: JSON.stringify(entriesState)
+                    goods: JSON.stringify(entriesState),
+                    document_type: 1,
                 })
             )
             .then(response => {

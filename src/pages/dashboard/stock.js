@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Row, Col, Table, Spinner, Card, CardBody } from 'reactstrap';
 import { apiAuth } from '../../basara-api';
 
@@ -66,11 +67,11 @@ const Stock = ({ location }) => {
                                             return (
                                                 <tr key={index}>
                                                     <td>{item.document_id}</td>
-                                                    <td>{item.primary_id}</td>
+                                                    <td><Link to={'/history?id=' + item.primary_id}>{item.primary_id}</Link></td>
                                                     <td>{item.secondary_id}</td>
                                                     <td>{item.in_stock_for}</td>
                                                     <td>{item.price}</td>
-                                                    <td>{item.model}</td>
+                                                    <td><Link to={'/search?search=' + item.model}>{item.model}</Link></td>
                                                     <td>{item.date}</td>
                                                     <td>{item.delivery_document_type}</td>
                                                 </tr>
