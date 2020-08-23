@@ -311,6 +311,38 @@ const Transactions = ({ history }) => {
     );
 };
 
+const Users = ({ history }) => {
+    return (
+        <Card>
+            <CardBody>
+                <h4 className="header-title mt-0">Users</h4>
+                <UncontrolledDropdown className="d-inline">
+                    <DropdownToggle color="info">
+                        Show{' '}
+                        <i className="icon">
+                            <ChevronDown></ChevronDown>
+                        </i>
+                    </DropdownToggle>
+                    <DropdownMenu>
+                        <DropdownItem
+                            onClick={() => {
+                                history.push(`/transactions/createuser`);
+                            }}>
+                            Create
+                        </DropdownItem>
+                        <DropdownItem
+                            onClick={() => {
+                                history.push(`/transactions/allusers`);
+                            }}>
+                            All
+                        </DropdownItem>
+                    </DropdownMenu>
+                </UncontrolledDropdown>
+            </CardBody>
+        </Card>
+    );
+};
+
 const Warehouses = ({ history }) => {
     return (
         <React.Fragment>
@@ -326,6 +358,9 @@ const Warehouses = ({ history }) => {
             <Row>
                 <Col md={4}>
                     <Transactions history={history} />
+                </Col>
+                <Col md={4}>
+                    <Users history={history} />
                 </Col>
             </Row>
         </React.Fragment>

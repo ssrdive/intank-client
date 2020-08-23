@@ -69,6 +69,8 @@ const GoodsIn = React.lazy(() => import('../pages/transactions/goodsin'));
 const GoodsOut = React.lazy(() => import('../pages/transactions/goodsout'));
 const GoodsTransfer = React.lazy(() => import('../pages/transactions/goodstransfer'));
 const GoodsReturn = React.lazy(() => import('../pages/transactions/goodsreturn'));
+const CreateUser = React.lazy(() => import('../pages/transactions/createuser'));
+const AllUsers =  React.lazy(() => import('../pages/transactions/alluser'));
 
 // handle auth and authorization
 const PrivateRoute = ({ component: Component, roles, ...rest }) => (
@@ -134,7 +136,7 @@ const dashboardSubRoutes = [
         exact: true,
         component: Agewise,
         route: PrivateRoute,
-        roles: ['Admin', 'Office Executive', 'Manager']
+        roles: ['Admin']
     },
     {
         path: '/history',
@@ -204,7 +206,7 @@ const transactionsSubRoute = [
         exact: true,
         component: GoodsIn,
         route: PrivateRoute,
-        roles: ['Admin', 'Office Executive', 'Manager']
+        roles: ['Admin']
     },
     {
         path: '/transactions/goods-out',
@@ -212,7 +214,7 @@ const transactionsSubRoute = [
         exact: true,
         component: GoodsOut,
         route: PrivateRoute,
-        roles: ['Admin', 'Office Executive', 'Manager']
+        roles: ['Admin']
     },
     {
         path: '/transactions/goods-transfer',
@@ -220,7 +222,7 @@ const transactionsSubRoute = [
         exact: true,
         component: GoodsTransfer,
         route: PrivateRoute,
-        roles: ['Admin', 'Office Executive', 'Manager']
+        roles: ['Admin']
     },
     {
         path: '/transactions/goods-return',
@@ -228,7 +230,23 @@ const transactionsSubRoute = [
         exact: true,
         component: GoodsReturn,
         route: PrivateRoute,
-        roles: ['Admin', 'Office Executive', 'Manager']
+        roles: ['Admin']
+    },
+    {
+        path: '/transactions/createuser',
+        name: 'Create User',
+        exact: true,
+        component: CreateUser,
+        route: PrivateRoute,
+        roles: ['Admin']
+    },
+    {
+        path: '/transactions/allusers',
+        name: 'All Users',
+        exact: true,
+        component: AllUsers,
+        route: PrivateRoute,
+        roles: ['Admin']
     },
 ];
 
